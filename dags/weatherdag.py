@@ -11,7 +11,8 @@ weatherdag_config = Variable.get("weatherdag_config", deserialize_json=True)
 weatherdag_stationId = weatherdag_config["stationId"]
 weatherdag_raw_folder = weatherdag_config["raw_folder"]
 weatherdag_db_path = weatherdag_config["db_path"]
-weatherdag_viz_path = weatherdag_config["viz_path"]
+weatherdag_viz_folder = weatherdag_config["viz_folder"]
+weatherdag_start_date = weatherdag_config["start_date"]
 
 
 def extract_from_nws_api(**context):
@@ -40,7 +41,7 @@ def load_raw_layer(**context):
 
 def update_visualization():
     from weatherdag_utils import update_viz
-    update_viz(db_path=weatherdag_db_path, viz_path=weatherdag_viz_path)
+    update_viz(db_path=weatherdag_db_path, viz_folder=weatherdag_viz_folder)
 
 
 def update_db():
@@ -57,8 +58,9 @@ with DAG(
     },
     description="A DAG for extracting National Weather Service observation data.",
     schedule="@daily",
-    start_date=datetime(2023, 6, 1),
+    start_date=datetime.fromisoformat(weatherdag_start_date),
     catchup=True,
+    max_active_runs=1,
 ) as dag:
 
     task_start = EmptyOperator(task_id='start')
@@ -77,7 +79,7 @@ with DAG(
     )
 
     task_update_viz = PythonOperator(
-        task_id="task_update_viz",
+        task_id="update_viz",
         python_callable=update_visualization,
     )
 

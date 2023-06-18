@@ -103,7 +103,7 @@ def create_or_update_db(db_path: str):
     con.close()
 
 
-def update_viz(db_path: str, viz_path: str):
+def update_viz(db_path: str, viz_folder: str):
     logger.info(f"Opening SQLits database connection: {db_path}")
     with sqlite3.connect(db_path) as con:
         logger.info("Querying observation properties from database")
@@ -112,9 +112,9 @@ def update_viz(db_path: str, viz_path: str):
     logger.info("Closing database connection")
     con.close()
 
-    if not os.path.isdir(viz_path):
-        logger.info(f"Creating visualization directory: {viz_path}")
-        os.makedirs(viz_path)
+    if not os.path.isdir(viz_folder):
+        logger.info(f"Creating visualization directory: {viz_folder}")
+        os.makedirs(viz_folder)
 
     df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
 
@@ -132,6 +132,6 @@ def update_viz(db_path: str, viz_path: str):
 
     fig.autofmt_xdate()
 
-    fp = os.path.join(viz_path, "fig.png")
+    fp = os.path.join(viz_folder, "fig.png")
     logger.info(f"Saving visualiation to {fp}")
     plt.savefig(fp)
